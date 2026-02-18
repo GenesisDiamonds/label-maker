@@ -32,6 +32,7 @@
       --light: #5D8A78;
       --gold: #F0EAE1;
       --white: #FBFAF8;
+      --rose: #b88f90;
     }
 
 @font-face{
@@ -311,7 +312,7 @@
     /* Color choices */
     .type-natural{ background: var(--green); color: #fff; }
     .type-lab{ background: var(--light); color: #fff; }
-    .type-50{ background: #b88f90; color: white; }
+    .type-50{ background: var(--rose); color: white; }
 
     /* Make the Type (color) dropdown match label colors */
     .grid td:nth-child(3) select.type-natural,
@@ -326,7 +327,7 @@
     }
     .grid td:nth-child(3) select.type-50,
     #bulkType.type-50{
-      background: #b88f90;
+      background: var(--rose);
       color: #fff;
     }
 
