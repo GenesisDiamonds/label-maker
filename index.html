@@ -313,6 +313,29 @@
     .type-lab{ background: var(--light); color: #fff; }
     .type-50{ background: #b88f90; color: white; }
 
+    /* Make the Type (color) dropdown match label colors */
+    .grid td:nth-child(3) select.type-natural,
+    #bulkType.type-natural{
+      background: var(--green);
+      color: #fff;
+    }
+    .grid td:nth-child(3) select.type-lab,
+    #bulkType.type-lab{
+      background: var(--light);
+      color: #fff;
+    }
+    .grid td:nth-child(3) select.type-50,
+    #bulkType.type-50{
+      background: #b88f90;
+      color: #fff;
+    }
+
+    /* Keep the native arrow visible on colored backgrounds */
+    .grid td:nth-child(3) select,
+    #bulkType{
+      border: none;
+    }
+
     .meta{
       font-size: 11px;
       opacity: 0.85;
@@ -503,10 +526,19 @@
       const sel = document.createElement('select');
       sel.innerHTML = `
         <option value="natural">Default Label</option>
-        <option value="lab">Lab</option>
+        <option value="lab">Lab Diamond</option>
         <option value="50">50% Off</option>
       `;
       return sel;
+    }
+
+    function applyTypeSelectStyle(sel) {
+      if (!sel) return;
+      sel.classList.remove('type-natural', 'type-lab', 'type-50');
+      const v = sel.value;
+      if (v === 'lab') sel.classList.add('type-lab');
+      else if (v === '50') sel.classList.add('type-50');
+      else sel.classList.add('type-natural');
     }
 
     function makeWidthSelect() {
@@ -548,6 +580,7 @@
       const typeSel = makeTypeSelect();
       typeSel.value = initial.type ?? 'natural';
       tdType.appendChild(typeSel);
+      applyTypeSelectStyle(typeSel);
 
       // Width (select + optional manual input in the SAME cell)
       const tdWidth = document.createElement('td');
@@ -637,7 +670,10 @@
       });
 
       text.addEventListener('input', schedulePreviewUpdate);
-      typeSel.addEventListener('change', schedulePreviewUpdate);
+      typeSel.addEventListener('change', () => {
+        applyTypeSelectStyle(typeSel);
+        schedulePreviewUpdate();
+      });
       qty.addEventListener('input', schedulePreviewUpdate);
 
       function updateCustomWidthVisibility() {
@@ -988,6 +1024,10 @@
       bulkCustomWidth.style.display = (bulkWidth.value === 'manual') ? '' : 'none';
     });
 
+    bulkType.addEventListener('change', () => {
+      applyTypeSelectStyle(bulkType);
+    });
+
     bulkApply.addEventListener('click', () => {
       const selected = getSelectedRows();
       if (selected.length === 0) return;
@@ -1004,7 +1044,10 @@
         const customEl = tr.querySelector('td:nth-child(4) input.manual-width');
 
         if (newText.length > 0 && textEl) textEl.value = newText;
-        if (newType && typeEl) typeEl.value = newType;
+        if (newType && typeEl) {
+          typeEl.value = newType;
+          applyTypeSelectStyle(typeEl);
+        }
 
         if (newWidth) {
           if (widthEl) widthEl.value = newWidth;
@@ -1026,9 +1069,10 @@
     });
 
     // Starter rows
-    rowsEl.appendChild(addRow({ text: 'Default Label Color', type: 'natural', width: 4.37, qty: 1 }));
-    rowsEl.appendChild(addRow({ text: 'Lab Diamonds Label Color', type: 'lab', width: 4.37, qty: 1 }));
-    rowsEl.appendChild(addRow({ text: '50% Off Label Color', type: '50', width: 4.37, qty: 1 }));
+    rowsEl.appendChild(addRow({ text: '4ct. Elongated Cushions', type: 'natural', width: 7.0625, qty: 1 }));
+    rowsEl.appendChild(addRow({ text: 'Oval | Up to $1,995', type: 'lab', width: 7.0625, qty: 1 }));
+    rowsEl.appendChild(addRow({ text: '50% Off | Up to $4,995', type: '50', width: 7.0625, qty: 1 }));
+    applyTypeSelectStyle(bulkType);
 
     schedulePreviewUpdate();
     updateBulkPanel();
