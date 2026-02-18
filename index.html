@@ -532,9 +532,8 @@
     function makeTypeSelect() {
       const sel = document.createElement('select');
       sel.innerHTML = `
-        <option value="natural">Default Label</option>
-        <option value="lab">Lab Diamond</option>
-        <option value="50">50% Off</option>
+        <option value="natural">Natural Diamonds</option>
+        <option value="lab">Lab Diamonds</option>
       `;
       return sel;
     }
@@ -1078,7 +1077,7 @@
     // Starter rows
     rowsEl.appendChild(addRow({ text: '4ct. Elongated Cushions', type: 'natural', width: 7.0625, qty: 1 }));
     rowsEl.appendChild(addRow({ text: 'Oval | Up to $1,995', type: 'lab', width: 7.0625, qty: 1 }));
-    rowsEl.appendChild(addRow({ text: '50% Off | Up to $4,995', type: '50', width: 7.0625, qty: 1 }));
+    rowsEl.appendChild(addRow({ text: '50% Off | Up to $4,995', type: 'natural', width: 7.0625, qty: 1 }));
     applyTypeSelectStyle(bulkType);
 
     schedulePreviewUpdate();
