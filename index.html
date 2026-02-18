@@ -1,0 +1,1043 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Printable Labels (8.5x11)</title>
+  <style>
+    :root{
+      /* Page + layout */
+      --page-w: 8.5in;
+      --page-h: 11in;
+
+      /* Printable area margins (adjust for your printer) */
+      --m-top: 0.25in;
+      --m-right: 0.25in;
+      --m-bottom: 0.25in;
+      --m-left: 0.25in;
+      --print-safe-left: 0.20in; /* extra left inset for printers */
+
+      /* Spacing between labels */
+      --gap-x: 0.10in;
+      --gap-y: 0.10in;
+
+      /* Label dimensions */
+      --label-h: 0.79in; /* fixed per your request */
+
+      /* Label typography */
+      --font: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    /* SangBleuOGSans font-face: map Regular to all weights for reliability */
+
+      --green: #09493C;
+      --light: #5D8A78;
+      --gold: #F0EAE1;
+      --white: #FBFAF8;
+    }
+
+@font-face{
+      font-family: "SangBleuOGSans";
+      src: url("./fonts/SangBleuOGSans-Regular-WebXL.woff2") format("woff2"),
+           url("./fonts/SangBleuOGSans-Regular-WebXL.woff") format("woff"),
+           url("./fonts/SangBleuOGSans-Regular-WebXL.ttf") format("truetype");
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    * { box-sizing: border-box;
+}
+    body{
+      margin: 0;
+      font-family: "SangBleuOGSans";
+      background: var(--white);
+      color: black;
+      overflow: hidden;
+    font-feature-settings: 'case' on;
+
+
+
+    }
+
+    .app{
+      display: grid;
+      grid-template-columns: clamp(780px, 55vw, 1080px) 1fr;
+      grid-template-rows: 1fr;
+      height: 100vh;
+    }
+
+    /* Controls */
+    .controls{
+      width: 100%;
+      padding: 16px;
+      border-right: 1px solid rgba(255,255,255,0.08);
+      background: var(--gold);
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      height: 100%;
+      font-family: helvetica !important;
+    }
+    .controls h1{
+      font-size: 16px;
+      margin: 0 0 10px 0;
+    }
+    .controls .hint{
+      font-size: 12px;
+      opacity: 0.85;
+      line-height: 1.35;
+      margin-bottom: 0;
+    }
+
+    .inputs-wrap{ flex: 1; min-height: 0; }
+    .inputs-scroll{ overflow: auto; ; padding-right: 4px; }
+
+    .toolbar{
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 12px 0 16px;
+    }
+    button{
+      appearance: none;
+      border: none; 
+      background: var(--green);
+      color: white;
+      padding: 8px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    button:hover{ background: var(--light); }
+    button:active{ transform: translateY(1px); }
+    button.primary{
+      background: var(--green);
+      border-color: rgba(255,255,255,0.18);
+    }
+    button.primary:hover{ background: var(--light); }
+
+    .settings{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 10px 0 16px;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.04);
+      border: none;
+    }
+    .field label{
+      display: block;
+      font-size: 12px;
+      opacity: 0.9;
+      margin-bottom: 6px;
+    }
+    input[type="number"], input[type="text"], select{
+      width: 100%;
+      padding: 8px 9px;
+      border-radius: 10px;
+      border: none;
+      background: var(--white);
+      color: black;
+      outline: none;
+      font-size: 13px;
+    }
+    .grid td{ overflow: visible; }
+
+    .grid{
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 12px;
+      border: none;
+      background: none;
+      table-layout: fixed;
+    }
+    .grid th, .grid td{
+      padding: 8px;
+      border-bottom: none;
+      vertical-align: middle;
+    }
+    .grid th{
+      font-size: 12px;
+      text-align: left;
+      opacity: 0.9;
+      white-space: nowrap;
+      background: rgba(255,255,255,0.04);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    .grid td:last-child, .grid th:last-child{ width: 92px; text-align: center; }
+
+    /* Column sizing (table-layout: fixed) */
+    .grid th:nth-child(1), .grid td:nth-child(1){ width: 42px; }   /* Select */
+    .grid th:nth-child(2), .grid td:nth-child(2){ width: 300px; }  /* Label Text (guaranteed) */
+    .grid th:nth-child(3), .grid td:nth-child(3){ width: 150px; }  /* Color */
+    .grid th:nth-child(4), .grid td:nth-child(4){ width: auto; }   /* Width (takes remaining, includes manual input) */
+    .grid th:nth-child(5), .grid td:nth-child(5){ width: 90px; }   /* Qty */
+
+    /* Make the text input fill nicely */
+    .grid td:nth-child(2) input[type="text"]{ width: 100%; }
+    /* Make dropdowns/qty feel less cramped */
+    .grid select{
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
+      /* padding-right: 34px; room for native arrow */
+      white-space: nowrap;
+      overflow: hidden;
+      /* text-overflow: ellipsis; */
+    }
+
+    .grid td:nth-child(5) input[type="number"]{
+      min-width: 0;
+      max-width: 100%;
+      text-align: center;
+    }
+
+    .width-wrap{
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      width: 100%;
+    }
+    .width-wrap select{ flex: 1 1 auto; }
+    .width-wrap input.manual-width{
+      width: 120px;
+      flex: 0 0 120px;
+    }
+    .icon-btn{
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: inline-grid;
+      place-items: center;
+      padding: 0;
+    }
+    .grid th:nth-child(1), .grid td:nth-child(1){ text-align: center; }
+    /* Center row selection checkboxes cleanly */
+    .grid td:nth-child(1){
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+
+    .grid td:nth-child(1) .row-select,
+    .grid th:nth-child(1) input[type="checkbox"]{
+      width: 18px;
+      height: 18px;
+      vertical-align: middle;
+    }
+    .row-selected{ outline: 2px solid rgba(44,92,255,0.45); outline-offset: -2px; }
+    .actions{ display:flex; gap:8px; justify-content:center; }
+    .actions .icon-btn{ width:34px; height:34px; }
+
+    /* Preview area */
+    .preview{
+      padding: 22px;
+      background: #0b0b0b;
+      overflow: auto;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      height: 100%;
+    }
+
+    /* Screen preview scaling wrapper */
+    .page-wrap{
+      position: relative;
+      display: inline-block;
+    }
+
+    .pages-wrap{
+      display: grid;
+      gap: 18px;
+      justify-content: start;
+      align-content: start;
+    }
+
+    .page{
+      width: var(--page-w);
+      height: var(--page-h);
+      background: #fff;
+      color: #000;
+      border-radius: 10px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.45);
+      position: relative;
+      overflow: hidden;
+      transform: scale(var(--preview-scale, 0.8));
+      transform-origin: top left;
+    }
+
+    /* Printable area inside the page */
+    .page .print-area{
+      position: absolute;
+      left: var(--m-left);
+      top: var(--m-top);
+      right: var(--m-right);
+      bottom: var(--m-bottom);
+      /* helpful faint outline for alignment (hidden on print) */
+      outline: 1px dashed rgba(0,0,0,0.12);
+      outline-offset: 0;
+    }
+
+    /* Labels */
+    .label{
+      height: var(--label-h);
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 0.06in 0.12in;
+      border-radius: 0;
+      border: none;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      line-height: 1.05;
+      user-select: none;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .label .label-text{
+      display: inline-block;
+      max-width: 100%;
+      /* Preserve multiple spaces (HTML collapses normal spaces) */
+      white-space: pre;
+    }
+
+    /* Color choices */
+    .type-natural{ background: var(--green); color: #fff; }
+    .type-lab{ background: var(--light); color: #fff; }
+    .type-50{ background: #b88f90; color: white; }
+
+    .meta{
+      font-size: 11px;
+      opacity: 0.85;
+      margin-top: 8px;
+      line-height: 1.35;
+    }
+
+    /* Remove per-column min-width rules for selects (was causing squeeze/overlap) */
+    /* .grid td:nth-child(3) select{ min-width: 140px; } */
+    /* .grid td:nth-child(4) select{ min-width: 220px; } */
+
+    /* PRINT */
+    @page{
+      size: Letter;
+      margin: 0; /* we control margins in .print-area */
+    }
+    @media print{
+      body{ background: #fff; }
+      body{ margin: 0 !important; }
+      html{ background: #fff !important; }
+      body{ background: #fff !important; }
+      .preview{ background: #fff !important; }
+      .pages-wrap{ background: transparent !important; }
+      .page-wrap{ background: transparent !important; }
+      /* Force printing of background colors */
+      *{
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .controls{ display: none !important; }
+      .preview{ padding: 0 !important; background: #fff !important; }
+      .preview{ display: block !important; overflow: visible !important; }
+      .pages-wrap{ gap: 0 !important; }
+      .pages-wrap{ display: block !important; }
+      .page{
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        /* page-break-after: always; */
+        transform: none !important;
+      }
+      /* .page:last-child{ page-break-after: auto; } */
+      .page .print-area{
+        outline: none !important;
+      }
+      /* Page breaks belong on the wrapper, not the page element */
+.page-wrap{
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: auto !important;
+  height: auto !important;
+
+  page-break-after: always;
+  break-after: page;
+}
+.page-wrap:last-child{
+  page-break-after: auto;
+  break-after: auto;
+}
+
+/* Make sure the page itself never forces extra breaks */
+.page{
+  page-break-after: auto !important;
+  break-after: auto !important;
+  margin: 0 !important;
+}
+      /* Some printers clip the left edge; add a small safety inset */
+      .page .print-area{
+        left: calc(var(--m-left) + var(--print-safe-left)) !important;
+        right: var(--m-right) !important;
+      }
+      .page-wrap{ width: auto !important; height: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="controls">
+      <h1>Label Sheet Builder (8.5×11)</h1>
+      <!-- <div class="hint">
+        Add rows below. Each row can generate multiple labels (Qty). The preview updates automatically — then click <b>Print</b>.
+        <br><br>
+        <b>Heights are fixed at 0.79"</b>. Width comes from your dropdown.
+      </div> -->
+
+      <div class="toolbar">
+        <button id="print">Print / Export</button>
+        <!-- <button id="clear">Clear Rows</button> -->
+      </div>
+
+      <div class="inputs-wrap">
+        <div class="inputs-scroll">
+          <div id="bulkPanel" style="display:none; margin-bottom: 10px; padding: 10px; border: 1px solid rgba(255,255,255,0.10); border-radius: 12px; background: rgba(255,255,255,0.03);">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom: 10px;">
+              <div style="display:flex; flex-direction:column; gap:2px;">
+                <div style="font-size:13px; font-weight:800; letter-spacing:0.01em;">Editing multiple selected labels</div>
+                <div style="font-size:12px; opacity:0.85;"><b id="bulkCount">0</b> selected</div>
+              </div>
+              <button id="bulkClear" class="icon-btn" title="Clear selection" style="width:42px; height:42px;">✕</button>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1.2fr 0.7fr 1fr 0.7fr; gap: 8px;">
+              <input id="bulkText" type="text" placeholder="Change Labels Here" />
+
+              <select id="bulkType">
+                <option value="">Keep Color</option>
+                <option value="natural">Default</option>
+                <option value="lab">Lab</option>
+                <option value="50">50% Off</option>
+              </select>
+
+              <select id="bulkWidth">
+                <option value="">Keep Width</option>
+              </select>
+
+              <input id="bulkCustomWidth" type="number" min="0.1" step="0.01" placeholder="Custom in" style="display:none;" />
+            </div>
+
+            <div class="toolbar" style="margin: 10px 0 0;">
+              <button id="bulkApply" class="primary">Apply Changes</button>
+            </div>
+
+            <div class="meta" style="margin-top:6px;">
+              Tip: Select rows with the checkbox. Any bulk field left blank will keep its current value.
+            </div>
+          </div>
+          <table class="grid" id="inputGrid">
+            <thead>
+              <tr>
+                <th style="width:42px; text-align:center;"><input id="selectAll" type="checkbox" title="Select all" /></th>
+                <th>Label Text</th>
+                <th>Color</th>
+                <th>Width</th>
+                <th>Qty</th>
+                <th style="width:92px;"></th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+          </table>
+
+          <div class="toolbar" style="margin-top: 12px;">
+            <button id="addRow">+ Add Label</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="preview">
+      <div class="pages-wrap" id="pages"></div>
+    </main>
+  </div>
+
+  <script>
+    // ---- Label width options (inches) ----
+    const WIDTH_OPTIONS = [
+      { value: 7.0625, label: 'Rectangular Ring Slot' },
+      { value: 4.84, label: 'Square Ring Tray' },
+      { value: 4.37, label: '3 Ring Tray' },
+      { value: 7.16, label: '5 Ring Tray' },
+      { value: 3.50, label: 'Earring Tray' },
+      { value: 6.75, label: '4 Ring Slot' },
+    ];
+
+    const rowsEl = document.getElementById('rows');
+    const pagesEl = document.getElementById('pages');
+
+    const addRowBtn = document.getElementById('addRow');
+    const printBtn = document.getElementById('print');
+    // const clearBtn = document.getElementById('clear');
+
+    const selectAllEl = document.getElementById('selectAll');
+    const bulkPanel = document.getElementById('bulkPanel');
+    const bulkCount = document.getElementById('bulkCount');
+    const bulkClear = document.getElementById('bulkClear');
+    const bulkText = document.getElementById('bulkText');
+    const bulkType = document.getElementById('bulkType');
+    const bulkWidth = document.getElementById('bulkWidth');
+    const bulkCustomWidth = document.getElementById('bulkCustomWidth');
+    const bulkApply = document.getElementById('bulkApply');
+
+    // Populate bulk width options
+    bulkWidth.innerHTML = `<option value="">Keep Width</option>` +
+      WIDTH_OPTIONS.map(o => `<option value="${o.value}">${o.label}</option>`).join('') +
+      `<option value="manual">Custom Width…</option>`;
+
+
+    function makeTypeSelect() {
+      const sel = document.createElement('select');
+      sel.innerHTML = `
+        <option value="natural">Default Label</option>
+        <option value="lab">Lab</option>
+        <option value="50">50% Off</option>
+      `;
+      return sel;
+    }
+
+    function makeWidthSelect() {
+      const sel = document.createElement('select');
+      sel.innerHTML = WIDTH_OPTIONS.map(o =>
+        `<option value="${o.value}">${o.label}</option>`
+      ).join('') + `<option value="manual">Custom Width…</option>`;
+      return sel;
+    }
+
+    let _previewTimer = null;
+    function schedulePreviewUpdate() {
+      clearTimeout(_previewTimer);
+      _previewTimer = setTimeout(() => {
+        generatePreview();
+      }, 120);
+    }
+
+    function addRow(initial = {}) {
+      const tr = document.createElement('tr');
+
+      // Select
+      const tdSel = document.createElement('td');
+      const sel = document.createElement('input');
+      sel.type = 'checkbox';
+      sel.className = 'row-select';
+      tdSel.appendChild(sel);
+
+      // Text
+      const tdText = document.createElement('td');
+      const text = document.createElement('input');
+      text.type = 'text';
+      text.placeholder = 'e.g. Elongated Cushion';
+      text.value = initial.text ?? '';
+      tdText.appendChild(text);
+
+      // Type
+      const tdType = document.createElement('td');
+      const typeSel = makeTypeSelect();
+      typeSel.value = initial.type ?? 'natural';
+      tdType.appendChild(typeSel);
+
+      // Width (select + optional manual input in the SAME cell)
+      const tdWidth = document.createElement('td');
+      const widthWrap = document.createElement('div');
+      widthWrap.className = 'width-wrap';
+
+      const widthSel = makeWidthSelect();
+      const initialWidth = initial.width ?? WIDTH_OPTIONS[0].value;
+      widthSel.value = (initialWidth === 'manual') ? 'manual' : String(initialWidth);
+
+      const custom = document.createElement('input');
+      custom.type = 'number';
+      custom.min = '0.1';
+      custom.step = '0.01';
+      custom.placeholder = 'inches';
+      custom.className = 'manual-width';
+      custom.value = String(initial.customWidth ?? '');
+      custom.style.display = 'none';
+
+      widthWrap.appendChild(widthSel);
+      widthWrap.appendChild(custom);
+      tdWidth.appendChild(widthWrap);
+
+      // Qty
+      const tdQty = document.createElement('td');
+      const qty = document.createElement('input');
+      qty.type = 'number';
+      qty.min = '1';
+      qty.value = String(initial.qty ?? 1);
+      tdQty.appendChild(qty);
+
+      // Actions (Duplicate + Delete)
+      const tdActions = document.createElement('td');
+      const actions = document.createElement('div');
+      actions.className = 'actions';
+
+      const dup = document.createElement('button');
+      dup.className = 'icon-btn';
+      dup.title = 'Duplicate row';
+      dup.innerHTML = '⧉';
+
+      const rm = document.createElement('button');
+      rm.className = 'icon-btn';
+      rm.title = 'Delete row';
+      rm.innerHTML = '✕';
+
+      dup.addEventListener('click', (e) => {
+        e.stopPropagation();
+        // Duplicate directly below
+        const next = addRow({
+          text: text.value,
+          type: typeSel.value,
+          width: widthSel.value,
+          customWidth: custom.value,
+          qty: qty.value
+        });
+        // Insert the new row after current row
+        rowsEl.insertBefore(next, tr.nextSibling);
+        // Keep selection off by default
+        setRowSelected(next, false);
+        schedulePreviewUpdate();
+      });
+
+      rm.addEventListener('click', (e) => {
+        e.stopPropagation();
+        tr.remove();
+        schedulePreviewUpdate();
+        updateBulkPanel();
+      });
+
+      actions.appendChild(dup);
+      actions.appendChild(rm);
+      tdActions.appendChild(actions);
+
+      tr.append(tdSel, tdText, tdType, tdWidth, tdQty, tdActions);
+
+      // Selection behavior
+      tr.dataset.selected = '0';
+      sel.addEventListener('change', () => {
+        setRowSelected(tr, sel.checked);
+      });
+      // Click on empty row area toggles selection (but not when interacting with inputs)
+      tr.addEventListener('click', (e) => {
+        const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+        if (['input','select','button','option'].includes(tag)) return;
+        setRowSelected(tr, tr.dataset.selected !== '1');
+      });
+
+      text.addEventListener('input', schedulePreviewUpdate);
+      typeSel.addEventListener('change', schedulePreviewUpdate);
+      qty.addEventListener('input', schedulePreviewUpdate);
+
+      function updateCustomWidthVisibility() {
+        const isManual = widthSel.value === 'manual';
+        custom.style.display = isManual ? '' : 'none';
+        if (!isManual) custom.value = '';
+        schedulePreviewUpdate();
+      }
+
+      widthSel.addEventListener('change', updateCustomWidthVisibility);
+      custom.addEventListener('input', schedulePreviewUpdate);
+
+      // Apply initial visibility
+      updateCustomWidthVisibility();
+
+      schedulePreviewUpdate();
+
+      return tr;
+    }
+
+    // No longer need parseCsvNums or input-based applyRootVars; hardcode values:
+    function applyRootVars() {
+      // Hardcoded layout settings (edit these in code as needed)
+      const m = [0.25, 0.25, 0.25, 0.25]; // Top, Right, Bottom, Left (in)
+      const g = [0.10, 0.10]; // GapX, GapY (in)
+
+      document.documentElement.style.setProperty('--m-top', `${m[0]}in`);
+      document.documentElement.style.setProperty('--m-right', `${m[1]}in`);
+      document.documentElement.style.setProperty('--m-bottom', `${m[2]}in`);
+      document.documentElement.style.setProperty('--m-left', `${m[3]}in`);
+
+      document.documentElement.style.setProperty('--gap-x', `${g[0]}in`);
+      document.documentElement.style.setProperty('--gap-y', `${g[1]}in`);
+    }
+
+    function getRowsData() {
+      const data = [];
+      for (const tr of rowsEl.querySelectorAll('tr')) {
+        const t = tr.querySelector('td:nth-child(2) input')?.value ?? '';
+        const type = tr.querySelector('td:nth-child(3) select')?.value ?? 'natural';
+        const widthSelVal = tr.querySelector('td:nth-child(4) select')?.value ?? String(WIDTH_OPTIONS[0].value);
+        const customValRaw = tr.querySelector('td:nth-child(4) input.manual-width')?.value ?? '';
+        const customVal = Number(customValRaw);
+
+        let width;
+        if (widthSelVal === 'manual') {
+          width = Number.isFinite(customVal) && customVal > 0 ? customVal : NaN;
+        } else {
+          width = Number(widthSelVal);
+        }
+
+        const qty = Math.max(1, Number(tr.querySelector('td:nth-child(5) input')?.value ?? 1));
+        if (t.trim().length === 0) continue;
+        if (!Number.isFinite(width) || width <= 0) continue;
+        data.push({ text: t.trim(), type, width, qty });
+      }
+      return data;
+    }
+    // --- Selection and Bulk helpers ---
+    function getSelectedRows() {
+      return Array.from(rowsEl.querySelectorAll('tr')).filter(tr => tr.dataset.selected === '1');
+    }
+
+    function updateBulkPanel() {
+      const selected = getSelectedRows();
+      const n = selected.length;
+      bulkPanel.style.display = n > 0 ? '' : 'none';
+      bulkCount.textContent = String(n);
+
+      // Update Select All checkbox state
+      const all = Array.from(rowsEl.querySelectorAll('tr'));
+      if (all.length === 0) {
+        selectAllEl.checked = false;
+        selectAllEl.indeterminate = false;
+      } else {
+        const selectedCount = n;
+        selectAllEl.checked = selectedCount === all.length;
+        selectAllEl.indeterminate = selectedCount > 0 && selectedCount < all.length;
+      }
+    }
+
+    function setRowSelected(tr, isSelected) {
+      tr.dataset.selected = isSelected ? '1' : '0';
+      tr.classList.toggle('row-selected', !!isSelected);
+      const cb = tr.querySelector('input.row-select');
+      if (cb) cb.checked = !!isSelected;
+      updateBulkPanel();
+    }
+
+    function formatLabelText(raw) {
+      // If the text contains a pipe, force exactly two spaces on both sides.
+      // NOTE: HTML collapses normal spaces, so use non-breaking spaces to preserve them.
+      // e.g. "A|B", "A |B", "A| B" -> "A␠␠|␠␠B" (visually)
+      const nbsp = '\u00A0';
+      const two = nbsp + nbsp;
+      return String(raw ?? '').replace(/\s*\|\s*/g, `${two}|${two}`);
+    }
+
+    function shrinkToFitLabel(labelEl, basePt = 16, minPt = 9) {
+      const span = labelEl.querySelector('.label-text');
+      if (!span) return;
+
+      // Start from base size
+      labelEl.style.fontSize = `${basePt}pt`;
+
+      // Available inner width (subtract padding); needed width is text span width
+      const fits = () => {
+        const cs = getComputedStyle(labelEl);
+        const pl = parseFloat(cs.paddingLeft) || 0;
+        const pr = parseFloat(cs.paddingRight) || 0;
+        const available = Math.max(0, labelEl.clientWidth - pl - pr);
+        const needed = span.scrollWidth;
+        return needed <= available;
+      };
+      if (fits()) return;
+
+      // Binary search best fitting font size
+      let lo = minPt;
+      let hi = basePt;
+      for (let i = 0; i < 14; i++) {
+        const mid = (lo + hi) / 2;
+        labelEl.style.fontSize = `${mid}pt`;
+        if (fits()) lo = mid;
+        else hi = mid;
+      }
+      labelEl.style.fontSize = `${Math.max(minPt, lo)}pt`;
+    }
+
+    function buildLabelEl({ text, type, width }) {
+      const div = document.createElement('div');
+      div.className = `label ${type === '50' ? 'type-50' : (type === 'lab' ? 'type-lab' : 'type-natural')}`;
+      div.style.width = `${width}in`;
+      div.style.fontSize = `16pt`; // Hardcoded (edit in code if needed)
+
+      const maxLines = 1; // Hardcoded (1 = single line). Edit if needed.
+
+      if (maxLines === 1) {
+        div.style.whiteSpace = 'nowrap';
+        div.style.textOverflow = 'ellipsis';
+        div.style.overflow = 'hidden';
+        const span = document.createElement('span');
+        span.className = 'label-text';
+        span.textContent = formatLabelText(text);
+        div.appendChild(span);
+      } else {
+        // Simple wrapping with line clamp
+        div.style.whiteSpace = 'normal';
+        div.style.overflow = 'hidden';
+        div.style.display = '-webkit-box';
+        div.style.webkitBoxOrient = 'vertical';
+        div.style.webkitLineClamp = String(maxLines);
+        div.style.lineHeight = '1.05';
+        const span = document.createElement('span');
+        span.className = 'label-text';
+        span.textContent = formatLabelText(text);
+        div.appendChild(span);
+      }
+
+      return div;
+    }
+
+    function createPageEl() {
+      const wrap = document.createElement('div');
+      wrap.className = 'page-wrap';
+
+      const page = document.createElement('div');
+      page.className = 'page';
+
+      const area = document.createElement('div');
+      area.className = 'print-area';
+
+      page.appendChild(area);
+      wrap.appendChild(page);
+
+      return { wrap, page, area };
+    }
+
+    // Packs labels into a single vertical column, creates new pages as needed.
+    function generatePreview() {
+      applyRootVars();
+      pagesEl.innerHTML = '';
+
+      const rows = getRowsData();
+      if (rows.length === 0) return;
+
+      // Expand into individual labels by qty
+      const labels = [];
+      for (const r of rows) {
+        for (let i = 0; i < r.qty; i++) labels.push({ text: r.text, type: r.type, width: r.width });
+      }
+
+      // Page metrics (inches)
+      const PAGE_W = 8.5;
+      const PAGE_H = 11;
+
+      const m = [0.25, 0.25, 0.25, 0.25]; // Top, Right, Bottom, Left (in)
+      const g = [0.10, 0.10]; // GapX, GapY (in)
+
+      const areaW = PAGE_W - (m[1] + m[3]);
+      const areaH = PAGE_H - (m[0] + m[2]);
+
+      const labelH = 0.79;
+
+      // Packing cursor
+      let cursorX = 0;
+      let cursorY = 0;
+      let rowH = labelH; // fixed, but keep for clarity
+
+      let { wrap, page, area } = createPageEl();
+      pagesEl.appendChild(wrap);
+
+      function newPage() {
+        ({ wrap, page, area } = createPageEl());
+        pagesEl.appendChild(wrap);
+        cursorX = 0;
+        cursorY = 0;
+      }
+
+      // We'll absolutely-position labels inside print area for precise packing.
+      area.style.position = 'relative';
+
+      for (const lab of labels) {
+        const w = lab.width;
+
+        // Always stack vertically in a single column
+        cursorX = 0;
+
+        // If it doesn't fit vertically, new page.
+        if ((cursorY + labelH) > areaH + 1e-6) {
+          newPage();
+        }
+
+        // Create label element
+        const el = buildLabelEl(lab);
+        el.style.position = 'absolute';
+        el.style.left = `${cursorX}in`;
+        el.style.top = `${cursorY}in`;
+
+        area.appendChild(el);
+        // Shrink-to-fit after DOM insertion so measurements are valid
+        requestAnimationFrame(() => shrinkToFitLabel(el, 16, 9));
+
+        // Advance cursor vertically
+        cursorY += labelH + g[1];
+      }
+      requestAnimationFrame(() => {
+        for (const el of pagesEl.querySelectorAll('.label')) {
+          shrinkToFitLabel(el, 16, 9);
+        }
+      });
+      updatePreviewScale();
+    }
+
+    function updatePreviewScale() {
+      const previewEl = document.querySelector('.preview');
+      if (!previewEl) return;
+
+      // Measure a page at scale=1 (temporarily) to compute best scale
+      const firstPage = pagesEl.querySelector('.page');
+      if (!firstPage) return;
+
+      const prevScale = getComputedStyle(document.documentElement).getPropertyValue('--preview-scale') || '1';
+
+      // Temporarily set to 1 for measurement
+      document.documentElement.style.setProperty('--preview-scale', '1');
+
+      // Force layout read
+      const pageRect = firstPage.getBoundingClientRect();
+      const previewRect = previewEl.getBoundingClientRect();
+
+      // Available area (account for preview padding)
+      const availableW = Math.max(0, previewRect.width - 44);
+      const availableH = Math.max(0, previewRect.height - 44);
+
+      // Fit based on width/height, cap so it doesn't get enormous
+      const scaleW = availableW / pageRect.width;
+      const scaleH = availableH / pageRect.height;
+      let scale = Math.min(scaleW, scaleH, 0.95);
+      scale = Math.max(0.35, scale);
+
+      document.documentElement.style.setProperty('--preview-scale', String(scale));
+
+      // Set each wrapper's width/height so layout accounts for transform scaling
+      for (const wrap of pagesEl.querySelectorAll('.page-wrap')) {
+        const p = wrap.querySelector('.page');
+        if (!p) continue;
+        const r = p.getBoundingClientRect();
+        // r is already scaled; we want the scaled size based on scale and the unscaled page size.
+        // Re-measure at scale=1 for accurate base size.
+      }
+
+      // Measure base size again reliably: use CSS inches -> px conversion once
+      document.documentElement.style.setProperty('--preview-scale', '1');
+      const baseRect = firstPage.getBoundingClientRect();
+      document.documentElement.style.setProperty('--preview-scale', String(scale));
+
+      for (const wrap of pagesEl.querySelectorAll('.page-wrap')) {
+        wrap.style.width = (baseRect.width * scale) + 'px';
+        wrap.style.height = (baseRect.height * scale) + 'px';
+      }
+    }
+
+    // ---- Events ----
+    addRowBtn.addEventListener('click', () => rowsEl.appendChild(addRow({})));
+    printBtn.addEventListener('click', () => {
+      // Force immediate preview update, then print on next tick
+      clearTimeout(_previewTimer);
+      generatePreview();
+      setTimeout(() => window.print(), 0);
+    });
+    // clearBtn.addEventListener('click', () => {
+    //   rowsEl.innerHTML = '';
+    //   pagesEl.innerHTML = '';
+    //   rowsEl.appendChild(addRow({ text: 'NATURAL DIAMONDS', type: 'natural', width: 4.37, qty: 6 }));
+    //   rowsEl.appendChild(addRow({ text: 'LAB DIAMONDS', type: 'lab', width: 4.37, qty: 6 }));
+    //   rowsEl.appendChild(addRow({ text: '50% OFF', type: '50', width: 7.16, qty: 2 }));
+    //   schedulePreviewUpdate();
+    //   updateBulkPanel();
+    // });
+
+    // Select All checkbox
+    selectAllEl.addEventListener('change', () => {
+      const target = !!selectAllEl.checked;
+      const all = Array.from(rowsEl.querySelectorAll('tr'));
+
+      for (const tr of all) {
+        tr.dataset.selected = target ? '1' : '0';
+        tr.classList.toggle('row-selected', target);
+        const cb = tr.querySelector('input.row-select');
+        if (cb) cb.checked = target;
+      }
+
+      updateBulkPanel();
+    });
+
+    // Bulk panel events
+    bulkClear.addEventListener('click', () => {
+      for (const tr of Array.from(rowsEl.querySelectorAll('tr'))) setRowSelected(tr, false);
+      bulkText.value = '';
+      bulkType.value = '';
+      bulkWidth.value = '';
+      bulkCustomWidth.value = '';
+      bulkCustomWidth.style.display = 'none';
+      updateBulkPanel();
+    });
+
+    bulkWidth.addEventListener('change', () => {
+      bulkCustomWidth.style.display = (bulkWidth.value === 'manual') ? '' : 'none';
+    });
+
+    bulkApply.addEventListener('click', () => {
+      const selected = getSelectedRows();
+      if (selected.length === 0) return;
+
+      const newText = bulkText.value.trim();
+      const newType = bulkType.value;
+      const newWidth = bulkWidth.value;
+      const newCustom = bulkCustomWidth.value;
+
+      for (const tr of selected) {
+        const textEl = tr.querySelector('td:nth-child(2) input');
+        const typeEl = tr.querySelector('td:nth-child(3) select');
+        const widthEl = tr.querySelector('td:nth-child(4) select');
+        const customEl = tr.querySelector('td:nth-child(4) input.manual-width');
+
+        if (newText.length > 0 && textEl) textEl.value = newText;
+        if (newType && typeEl) typeEl.value = newType;
+
+        if (newWidth) {
+          if (widthEl) widthEl.value = newWidth;
+          // Show/hide the manual width input ONLY for this row
+          if (customEl) {
+            const isManual = newWidth === 'manual';
+            customEl.style.display = isManual ? '' : 'none';
+            if (isManual && String(newCustom).trim().length > 0) {
+              customEl.value = newCustom;
+            }
+            if (!isManual) {
+              customEl.value = '';
+            }
+          }
+        }
+      }
+
+      schedulePreviewUpdate();
+    });
+
+    // Starter rows
+    rowsEl.appendChild(addRow({ text: 'Default Label Color', type: 'natural', width: 4.37, qty: 1 }));
+    rowsEl.appendChild(addRow({ text: 'Lab Diamonds Label Color', type: 'lab', width: 4.37, qty: 1 }));
+    rowsEl.appendChild(addRow({ text: '50% Off Label Color', type: '50', width: 4.37, qty: 1 }));
+
+    schedulePreviewUpdate();
+    updateBulkPanel();
+
+    // Observe preview area resize to auto-fit scaling
+    const ro = new ResizeObserver(() => {
+      updatePreviewScale();
+    });
+    ro.observe(document.querySelector('.preview'));
+  </script>
+</body>
+</html>
