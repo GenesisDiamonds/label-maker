@@ -175,9 +175,9 @@
     /* Column sizing (table-layout: fixed) */
     .grid th:nth-child(1), .grid td:nth-child(1){ width: 42px; }   /* Select */
     .grid th:nth-child(2), .grid td:nth-child(2){ width: 300px; }  /* Label Text (guaranteed) */
-    .grid th:nth-child(3), .grid td:nth-child(3){ width: 150px; }  /* Color */
+    .grid th:nth-child(3), .grid td:nth-child(3){ width: 160px; }  /* Color */
     .grid th:nth-child(4), .grid td:nth-child(4){ width: auto; }   /* Width (takes remaining, includes manual input) */
-    .grid th:nth-child(5), .grid td:nth-child(5){ width: 90px; }   /* Qty */
+    .grid th:nth-child(5), .grid td:nth-child(5){ width: 60px; }   /* Qty */
 
     /* Make the text input fill nicely */
     .grid td:nth-child(2) input[type="text"]{ width: 100%; }
@@ -526,7 +526,7 @@
     // Populate bulk width options
     bulkWidth.innerHTML = `<option value="">Keep Width</option>` +
       WIDTH_OPTIONS.map(o => `<option value="${o.value}">${o.label}</option>`).join('') +
-      `<option value="manual">Custom Width…</option>`;
+      `<option value="manual">Custom…</option>`;
 
 
     function makeTypeSelect() {
@@ -551,7 +551,7 @@
       const sel = document.createElement('select');
       sel.innerHTML = WIDTH_OPTIONS.map(o =>
         `<option value="${o.value}">${o.label}</option>`
-      ).join('') + `<option value="manual">Custom Width…</option>`;
+      ).join('') + `<option value="manual">Custom…</option>`;
       return sel;
     }
 
