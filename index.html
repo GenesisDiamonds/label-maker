@@ -415,11 +415,11 @@
   <div class="app">
     <aside class="controls">
       <h1>Label Sheet Builder (8.5×11)</h1>
-      <!-- <div class="hint">
-        Add rows below. Each row can generate multiple labels (Qty). The preview updates automatically — then click <b>Print</b>.
-        <br><br>
-        <b>Heights are fixed at 0.79"</b>. Width comes from your dropdown.
-      </div> -->
+      <div class="hint">
+        - Fromat for price specific labels should be <b>[label title] | Up to $X,XXX</b> (Using the ' | ' symbol between)
+        <br><br>- Format for carat sizes should be <b>##ct.</b> (No spaces between number and lowercase 'ct.')
+        <br><br>- Format for 50% Off labels should be <b>50% Off | [label title]</b> ('50% Off' first, then seperated from title with ' | ' symbol)
+      </div>
 
       <div class="toolbar">
         <button id="print">Print / Export</button>
@@ -458,9 +458,9 @@
               <button id="bulkApply" class="primary">Apply Changes</button>
             </div>
 
-            <div class="meta" style="margin-top:6px;">
+            <!-- <div class="meta" style="margin-top:6px;">
               Tip: Select rows with the checkbox. Any bulk field left blank will keep its current value.
-            </div>
+            </div> -->
           </div>
           <table class="grid" id="inputGrid">
             <thead>
